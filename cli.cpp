@@ -72,8 +72,37 @@ private:
         SYSTEM_INFO sysInfo;
         GetSystemInfo(&sysInfo);
         cout << "Processor Architecture: "
-                  << (sysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64 ? "x64" : "x86") << "\n";
+            << (sysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64 ? "x64" : "x86") << "\n";
         cout << "Number of Processors: " << sysInfo.dwNumberOfProcessors << "\n";
+
+        MEMORYSTATUSEX memInfo;
+        memInfo.dwLength = sizeof(MEMORYSTATUSEX);
+        if (GlobalMemoryStatusEx(&memInfo)) {
+            cout << "Total RAM: " << static_cast<double>(memInfo.ullTotalPhys) / (1024 * 1024 * 1024) << " GB\n";
+            cout << "Available RAM: " << static_cast<double>(memInfo.ullAvailPhys) / (1024 * 1024 * 1024) << " GB\n";
+        }
+
+        ULARGE_INTEGER freeBytesAvailable, totalBytes, freeBytes;
+        if (GetDiskFreeSpaceEx(NULL, &freeBytesAvailable, &totalBytes, &freeBytes)) {
+            cout << "Total Storage: " << totalBytes.QuadPart / (1024 * 1024 * 1024) << " GB\n";
+            cout << "Free Storage: " << freeBytes.QuadPart / (1024 * 1024 * 1024) << " GB\n";
+        }
+
+        cout << "Graphics Cards:\n";
+        DISPLAY_DEVICE dd;
+        dd.cb = sizeof(DISPLAY_DEVICE);
+        int deviceIndex = 0;
+        while (EnumDisplayDevices(NULL, deviceIndex, &dd, 0)) {
+            cout << "  " << deviceIndex + 1 << ". " << dd.DeviceString << "\n";
+            deviceIndex++;
+        }
+
+        DEVMODE dm;
+        dm.dmSize = sizeof(DEVMODE);
+        if (EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dm)) {
+            cout << "Display Resolution: " << dm.dmPelsWidth << "x" << dm.dmPelsHeight << "\n";
+            cout << "Refresh Rate: " << dm.dmDisplayFrequency << " Hz\n";
+        }
     }
 
     void display_command_history() {
