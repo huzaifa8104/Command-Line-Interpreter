@@ -1,0 +1,162 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <filesystem>
+#include <sstream>
+#include <map>
+#include <fstream>
+#include <regex>
+#include <windows.h>
+
+using namespace std;
+namespace fs = filesystem;
+
+class CLI {
+private:
+    string prompt = "CLI> ";
+    vector<string> command_history;
+    map<string, string> aliases;
+
+    void list_directory(const string& path) {
+        try {
+            for (const auto& entry : fs::directory_iterator(path)) {
+                cout << (entry.is_directory() ? "[DIR] " : "      ") << entry.path().filename().string() << "\n";
+            }
+        } catch (const exception& e) {
+            cerr << "Error listing directory: " << e.what() << "\n";
+        }
+    }
+
+    void change_directory(const string& path) {
+        try {
+            fs::current_path(path);
+        } catch (const exception& e) {
+            cerr << "Error changing directory: " << e.what() << "\n";
+        }
+    }
+
+    void display_file(const string& filename) {
+        ifstream file(filename);
+        if (!file) {
+            cerr << "File not found or unable to open: " << filename << "\n";
+            return;
+        }
+        string line;
+        while (getline(file, line)) {
+            cout << line << "\n";
+        }
+    }
+
+    void copy_file(const string& src, const string& dest) {
+        try {
+            fs::copy(src, dest, fs::copy_options::overwrite_existing);
+            cout << "File copied successfully.\n";
+        } catch (const exception& e) {
+            cerr << "Error copying file: " << e.what() << "\n";
+        }
+    }
+
+    void remove_file(const string& filename) {
+        try {
+            if (fs::remove(filename)) {
+                cout << "File deleted successfully.\n";
+            } else {
+                cerr << "File not found or unable to delete.\n";
+            }
+        } catch (const exception& e) {
+            cerr << "Error deleting file: " << e.what() << "\n";
+        }
+    }
+
+    void show_system_info() {
+        SYSTEM_INFO sysInfo;
+        GetSystemInfo(&sysInfo);
+        cout << "Processor Architecture: "
+                  << (sysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64 ? "x64" : "x86") << "\n";
+        cout << "Number of Processors: " << sysInfo.dwNumberOfProcessors << "\n";
+    }
+
+    void display_command_history() {
+        for (size_t i = 0; i < command_history.size(); ++i) {
+            cout << i + 1 << ". " << command_history[i] << "\n";
+        }
+    }
+
+    void help_menu() {
+        cout << "Available commands:\n";
+        cout << "  dir                - List files in the current directory\n";
+        cout << "  cd <path>          - Change current directory\n";
+        cout << "  type <filename>    - Display contents of a file\n";
+        cout << "  copy <src> <dest>  - Copy a file\n";
+        cout << "  del <filename>     - Delete a file\n";
+        cout << "  sysinfo            - Display system information\n";
+        cout << "  history            - Show command history\n";
+        cout << "  help               - Show this help menu\n";
+        cout << "  exit               - Exit the CLI\n";
+    }
+
+    void parse_and_execute(const string& input) {
+        istringstream iss(input);
+        string command;
+        iss >> command;
+
+        // Handle aliases
+        if (aliases.find(command) != aliases.end()) {
+            command = aliases[command];
+        }
+
+        if (command == "dir") {
+            string path;
+            iss >> path;
+            if (path.empty()) path = fs::current_path().string();
+            list_directory(path);
+        } else if (command == "cd") {
+            string path;
+            iss >> path;
+            change_directory(path);
+        } else if (command == "type") {
+            string filename;
+            iss >> filename;
+            display_file(filename);
+        } else if (command == "copy") {
+            string src, dest;
+            iss >> src >> dest;
+            copy_file(src, dest);
+        } else if (command == "del") {
+            string filename;
+            iss >> filename;
+            remove_file(filename);
+        } else if (command == "sysinfo") {
+            show_system_info();
+        } else if (command == "history") {
+            display_command_history();
+        } else if (command == "help") {
+            help_menu();
+        } else if (command == "exit") {
+            exit(0);
+        } else {
+            cerr << "Unknown command: " << command << "\n";
+        }
+
+        command_history.push_back(input);
+    }
+
+public:
+    void run() {
+        string input;
+        cout << "============ Welcome to the Custom CLI ================ \n Type 'help' for a list of commands.\n";
+        while (true) {
+            cout << prompt;
+            getline(cin, input);
+            if (!input.empty()) {
+                parse_and_execute(input);
+            }
+        }
+    }
+};
+
+int main() {
+    CLI cli;
+    cli.run();
+    return 0;
+}
