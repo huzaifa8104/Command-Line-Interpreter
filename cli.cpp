@@ -92,9 +92,25 @@ private:
         DISPLAY_DEVICE dd;
         dd.cb = sizeof(DISPLAY_DEVICE);
         int deviceIndex = 0;
+        int firstGraphicsCard = -1;
+        int secondGraphicsCard = -1;
+        
         while (EnumDisplayDevices(NULL, deviceIndex, &dd, 0)) {
-            cout << "  " << deviceIndex + 1 << ". " << dd.DeviceString << "\n";
+            if (firstGraphicsCard == -1) {
+                firstGraphicsCard = deviceIndex;
+            }
+            secondGraphicsCard = deviceIndex;
             deviceIndex++;
+        }
+
+        if (firstGraphicsCard != -1) {
+            EnumDisplayDevices(NULL, firstGraphicsCard, &dd, 0);
+            cout << "  1. " << dd.DeviceString << "\n";
+        }
+
+        if (secondGraphicsCard != -1 && secondGraphicsCard != firstGraphicsCard) {
+            EnumDisplayDevices(NULL, secondGraphicsCard, &dd, 0);
+            cout << "  2. " << dd.DeviceString << "\n";
         }
 
         DEVMODE dm;
