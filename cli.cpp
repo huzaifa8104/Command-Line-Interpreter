@@ -68,6 +68,15 @@ private:
         }
     }
 
+    void rename_file(const string& old_name, const string& new_name) {
+        try {
+            fs::rename(old_name, new_name);
+            cout << "File renamed successfully.\n";
+        } catch (const exception& e) {
+            cerr << "Error renaming file: " << e.what() << "\n";
+        }
+    }
+
     void clear_screen() {
         system("cls");
     }
@@ -138,6 +147,7 @@ private:
         cout << "  type <filename>    - Display contents of a file\n";
         cout << "  copy <src> <dest>  - Copy a file\n";
         cout << "  del <filename>     - Delete a file\n";
+        cout << "  rename <old> <new> - Rename a file\n";
         cout << "  clear              - Clear the screen\n";
         cout << "  sysinfo            - Display system information\n";
         cout << "  history            - Show command history\n";
@@ -176,6 +186,10 @@ private:
             string filename;
             iss >> filename;
             remove_file(filename);
+        } else if (command == "rename") {
+            string old_name, new_name;
+            iss >> old_name >> new_name;
+            rename_file(old_name, new_name);
         } else if (command == "clear") {
             clear_screen();
         } else if (command == "sysinfo") {
