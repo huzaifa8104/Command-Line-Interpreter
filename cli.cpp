@@ -77,6 +77,18 @@ private:
         }
     }
 
+    void create_folder(const string& folder_name) {
+        try {
+            if (fs::create_directory(folder_name)) {
+                cout << "Folder created successfully.\n";
+            } else {
+                cerr << "Folder already exists or unable to create.\n";
+            }
+        } catch (const exception& e) {
+            cerr << "Error creating folder: " << e.what() << "\n";
+        }
+    }
+
     void clear_screen() {
         system("cls");
     }
@@ -148,6 +160,7 @@ private:
         cout << "  copy <src> <dest>  - Copy a file\n";
         cout << "  del <filename>     - Delete a file\n";
         cout << "  rename <old> <new> - Rename a file\n";
+        cout << "  mkdir <foldername>  - Create a new folder\n";
         cout << "  clear              - Clear the screen\n";
         cout << "  sysinfo            - Display system information\n";
         cout << "  history            - Show command history\n";
@@ -190,6 +203,10 @@ private:
             string old_name, new_name;
             iss >> old_name >> new_name;
             rename_file(old_name, new_name);
+        } else if (command == "mkdir") {
+            string folder_name;
+            iss >> folder_name;
+            create_folder(folder_name);
         } else if (command == "clear") {
             clear_screen();
         } else if (command == "sysinfo") {
