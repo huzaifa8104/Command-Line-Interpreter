@@ -68,6 +68,10 @@ private:
         }
     }
 
+    void clear_screen() {
+        system("cls");
+    }
+
     void show_system_info() {
         SYSTEM_INFO sysInfo;
         GetSystemInfo(&sysInfo);
@@ -134,6 +138,7 @@ private:
         cout << "  type <filename>    - Display contents of a file\n";
         cout << "  copy <src> <dest>  - Copy a file\n";
         cout << "  del <filename>     - Delete a file\n";
+        cout << "  clear              - Clear the screen\n";
         cout << "  sysinfo            - Display system information\n";
         cout << "  history            - Show command history\n";
         cout << "  help               - Show this help menu\n";
@@ -171,6 +176,8 @@ private:
             string filename;
             iss >> filename;
             remove_file(filename);
+        } else if (command == "clear") {
+            clear_screen();
         } else if (command == "sysinfo") {
             show_system_info();
         } else if (command == "history") {
