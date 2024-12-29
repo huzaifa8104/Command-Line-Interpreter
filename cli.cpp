@@ -89,6 +89,15 @@ private:
         }
     }
 
+    void create_file(const string& filename) {
+        ofstream file(filename);
+        if (file) {
+            cout << "File created successfully.\n";
+        } else {
+            cerr << "Error creating file: " << filename << "\n";
+        }
+    }
+
     void clear_screen() {
         system("cls");
     }
@@ -161,6 +170,7 @@ private:
         cout << "  del <filename>     - Delete a file\n";
         cout << "  rename <old> <new> - Rename a file\n";
         cout << "  mkdir <foldername>  - Create a new folder\n";
+        cout << "  create <filename>  - Create an empty file\n";
         cout << "  clear              - Clear the screen\n";
         cout << "  sysinfo            - Display system information\n";
         cout << "  history            - Show command history\n";
@@ -207,6 +217,10 @@ private:
             string folder_name;
             iss >> folder_name;
             create_folder(folder_name);
+        } else if (command == "create") {
+            string filename;
+            iss >> filename;
+            create_file(filename);
         } else if (command == "clear") {
             clear_screen();
         } else if (command == "sysinfo") {
