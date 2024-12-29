@@ -56,6 +56,23 @@ private:
         }
     }
 
+    void move_file(const string& src, const string& dest_folder) {
+        try {
+            if (!fs::exists(dest_folder) || !fs::is_directory(dest_folder)) {
+                cerr << "Destination folder does not exist: " << dest_folder << "\n";
+                return;
+            }
+
+            string filename = fs::path(src).filename().string();
+            fs::path dest = fs::path(dest_folder) / filename;
+
+            fs::rename(src, dest);
+            cout << "File moved successfully to folder: " << dest_folder << "\n";
+        } catch (const exception& e) {
+            cerr << "Error moving file: " << e.what() << "\n";
+        }
+    }
+
     void remove_file(const string& filename) {
         try {
             if (fs::remove(filename)) {
@@ -167,9 +184,10 @@ private:
         cout << "  cd <path>          - Change current directory\n";
         cout << "  type <filename>    - Display contents of a file\n";
         cout << "  copy <src> <dest>  - Copy a file\n";
+        cout << "  move <src> <dest>  - Move a file from source to destination\n";
         cout << "  del <filename>     - Delete a file\n";
         cout << "  rename <old> <new> - Rename a file\n";
-        cout << "  mkdir <foldername>  - Create a new folder\n";
+        cout << "  mkdir <foldername> - Create a new folder\n";
         cout << "  create <filename>  - Create an empty file\n";
         cout << "  clear              - Clear the screen\n";
         cout << "  sysinfo            - Display system information\n";
@@ -205,6 +223,10 @@ private:
             string src, dest;
             iss >> src >> dest;
             copy_file(src, dest);
+        } else if (command == "move") {
+            string src, dest_folder;
+            iss >> src >> dest_folder;
+            move_file(src, dest_folder);
         } else if (command == "del") {
             string filename;
             iss >> filename;
