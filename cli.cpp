@@ -47,12 +47,19 @@ private:
         }
     }
 
-    void copy_file(const string& src, const string& dest) {
+    void copy_file(const std::string& src, const std::string& dest) {
         try {
-            fs::copy(src, dest, fs::copy_options::overwrite_existing);
-            cout << "File copied successfully.\n";
-        } catch (const exception& e) {
-            cerr << "Error copying file: " << e.what() << "\n";
+            fs::path source_path = src;
+            fs::path dest_path = dest;
+            
+            if (fs::is_directory(dest_path)) {
+                dest_path /= source_path.filename();
+            }
+            
+            fs::copy(source_path, dest_path, fs::copy_options::overwrite_existing);
+            std::cout << "File copied successfully.\n";
+        } catch (const std::exception& e) {
+            std::cerr << "Error copying file: " << e.what() << "\n";
         }
     }
 
