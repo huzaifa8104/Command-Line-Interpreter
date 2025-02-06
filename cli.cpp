@@ -164,6 +164,25 @@ private:
         }
     }
 
+    void add_alias(const string& alias, const string& command) {
+        aliases[alias] = command;
+        set_color(10);
+        cout << "Alias added: " << alias << " -> " << command << "\n";
+        reset_color();
+    }
+
+    void remove_alias(const string& alias) {
+        if (aliases.erase(alias)) {
+            set_color(10);
+            cout << "Alias removed: " << alias << "\n";
+            reset_color();
+        } else {
+            set_color(4);
+            cerr << "Alias not found: " << alias << "\n";
+            reset_color();
+        }
+    }
+
     void clear_screen() {
         system("cls");
     }
@@ -238,6 +257,8 @@ private:
         cout << "  rename <old> <new> - Rename a file\n";
         cout << "  mkdir <foldername> - Create a new folder\n";
         cout << "  create <filename>  - Create an empty file\n";
+        cout << "  alias <a> <cmd>    - Create a command alias\n";
+        cout << "  unalias <a>        - Remove a command alias\n";
         cout << "  clear              - Clear the screen\n";
         cout << "  sysinfo            - Display system information\n";
         cout << "  history            - Show command history\n";
@@ -265,7 +286,6 @@ private:
         string command;
         iss >> command;
 
-        // Handle aliases
         if (aliases.find(command) != aliases.end()) {
             command = aliases[command];
         }
@@ -307,6 +327,22 @@ private:
             string filename;
             iss >> filename;
             create_file(filename);
+        } else if (command == "alias") {
+            string alias, cmd;
+            iss >> alias >> cmd;
+            if (!alias.empty() && !cmd.empty()) {
+                add_alias(alias, cmd);
+            } else {
+                cerr << "Usage: alias <alias_name> <command>\n";
+            }
+        } else if (command == "unalias") {
+            string alias;
+            iss >> alias;
+            if (!alias.empty()) {
+                remove_alias(alias);
+            } else {
+                cerr << "Usage: unalias <alias_name>\n";
+            }
         } else if (command == "clear") {
             clear_screen();
         } else if (command == "sysinfo") {
