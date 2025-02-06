@@ -23,7 +23,10 @@ private:
                 cout << (entry.is_directory() ? "[DIR] " : "      ") << entry.path().filename().string() << "\n";
             }
         } catch (const exception& e) {
+            set_color(4);
             cerr << "Error listing directory: " << e.what() << "\n";
+            log("Error listing directory: " + string(e.what()));
+            reset_color();
         }
     }
 
@@ -31,14 +34,20 @@ private:
         try {
             fs::current_path(path);
         } catch (const exception& e) {
+            set_color(4); 
             cerr << "Error changing directory: " << e.what() << "\n";
+            log("Error changing directory: " + string(e.what()));
+            reset_color();
         }
     }
 
     void display_file(const string& filename) {
         ifstream file(filename);
         if (!file) {
+            set_color(4);
             cerr << "File not found or unable to open: " << filename << "\n";
+            log("File not found or unable to open: " + filename);
+            reset_color();
             return;
         }
         string line;
@@ -57,16 +66,22 @@ private:
             }
             
             fs::copy(source_path, dest_path, fs::copy_options::overwrite_existing);
+            set_color(10);
             std::cout << "File copied successfully.\n";
+            reset_color();
         } catch (const std::exception& e) {
+            set_color(4);
             std::cerr << "Error copying file: " << e.what() << "\n";
+            reset_color();
         }
     }
 
     void move_file(const string& src, const string& dest_folder) {
         try {
             if (!fs::exists(dest_folder) || !fs::is_directory(dest_folder)) {
+                set_color(4);
                 cerr << "Destination folder does not exist: " << dest_folder << "\n";
+                reset_color();
                 return;
             }
 
@@ -74,51 +89,78 @@ private:
             fs::path dest = fs::path(dest_folder) / filename;
 
             fs::rename(src, dest);
+            set_color(10);
             cout << "File moved successfully to folder: " << dest_folder << "\n";
+            reset_color();
         } catch (const exception& e) {
+            set_color(4); 
             cerr << "Error moving file: " << e.what() << "\n";
+            log("Error moving file: " + string(e.what()));
+            reset_color();
         }
     }
 
     void remove_file(const string& filename) {
         try {
             if (fs::remove(filename)) {
+                set_color(10);
                 cout << "File deleted successfully.\n";
+                reset_color();
             } else {
+                set_color(4);
                 cerr << "File not found or unable to delete.\n";
+                reset_color();
             }
         } catch (const exception& e) {
+            set_color(4); 
             cerr << "Error deleting file: " << e.what() << "\n";
+            log("Error deleting file: " + string(e.what()));
+            reset_color();
         }
     }
 
     void rename_file(const string& old_name, const string& new_name) {
         try {
             fs::rename(old_name, new_name);
+            set_color(10); 
             cout << "File renamed successfully.\n";
+            reset_color();
         } catch (const exception& e) {
+            set_color(4); 
             cerr << "Error renaming file: " << e.what() << "\n";
+            log("Error renaming file: " + string(e.what()));
+            reset_color();
         }
     }
 
     void create_folder(const string& folder_name) {
         try {
             if (fs::create_directory(folder_name)) {
+                set_color(10); 
                 cout << "Folder created successfully.\n";
+                reset_color();
             } else {
+                set_color(4);
                 cerr << "Folder already exists or unable to create.\n";
+                reset_color();
             }
         } catch (const exception& e) {
             cerr << "Error creating folder: " << e.what() << "\n";
+            log("Error creating folder: " + string(e.what()));
         }
     }
 
     void create_file(const string& filename) {
         ofstream file(filename);
         if (file) {
+            set_color(10); 
             cout << "File created successfully.\n";
+            reset_color();
         } else {
+            set_color(4); 
             cerr << "Error creating file: " << filename << "\n";
+            log("Error creating file: " + filename);
+            reset_color();
         }
     }
 
@@ -201,6 +243,21 @@ private:
         cout << "  history            - Show command history\n";
         cout << "  help               - Show this help menu\n";
         cout << "  exit               - Exit the CLI\n";
+    }
+
+    void set_color(int color) {
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
+    }
+
+    void reset_color() {
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7); // Default color
+    }
+
+    void log(const string& message) {
+        ofstream logfile("cli_log.txt", ios::app);
+        if (logfile) {
+            logfile << message << "\n";
+        }
     }
 
     void parse_and_execute(const string& input) {
