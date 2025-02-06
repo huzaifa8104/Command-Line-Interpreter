@@ -102,19 +102,22 @@ private:
 
     void remove_file(const string& filename) {
         try {
-            if (fs::remove(filename)) {
+            if (fs::is_directory(filename)) {
+                fs::remove_all(filename);
+                set_color(10);
+                cout << "Directory and contents deleted successfully.\n";
+            } else if (fs::remove(filename)) {
                 set_color(10);
                 cout << "File deleted successfully.\n";
-                reset_color();
             } else {
                 set_color(4);
                 cerr << "File not found or unable to delete.\n";
-                reset_color();
             }
+            reset_color();
         } catch (const exception& e) {
-            set_color(4); 
-            cerr << "Error deleting file: " << e.what() << "\n";
-            log("Error deleting file: " + string(e.what()));
+            set_color(4);
+            cerr << "Error deleting: " << e.what() << "\n";
+            log("Error deleting: " + string(e.what()));
             reset_color();
         }
     }
